@@ -1,16 +1,12 @@
 Replay app
 ---
-**文件保存时执行**  
+**文件保存时自动执行**  
 nodejs敏捷开发工具，免去手动执行``node app.js``，每次保存自动执行，控制台即时输出结果
 
 
 ### Install
 ```sh
 npm i replayapp -g
-```
-需要授权时
-```sh
-[sudo] npm i replayapp -g
 ```
 
 ### Usage
