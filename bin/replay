@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+const app = require('../app')
+const path = require('path')
+const replay = require('commander')
+
+replay
+    .version('0.1.0')
+    .option('-r, -R', 'Recursive subfolders')
+    .option('-d, --deep', 'Recursive subfolders')
+    .option('-i, --ignore', 'Ignore items')
+    .action(function(){
+        let arr = Array.from(arguments)
+        let cmd = arr.pop()
+        !arr.length || app({
+            cmd: cmd,
+            list: arr.map(item => path.resolve(item))
+        })
+    })
+    
+
+replay.parse(process.argv)
+
+// 无参数时默认打印帮助信息
+if(process.argv.length == 2) {
+    return replay.outputHelp()
+}
