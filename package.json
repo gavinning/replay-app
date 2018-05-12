@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gavinning/replayapp.git"
+    "url": "git+https://github.com/gavinning/replay-app.git"
   },
   "keywords": [
     "replay",
@@ -22,9 +22,9 @@
   "author": "gavinning",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/gavinning/replayapp/issues"
+    "url": "https://github.com/gavinning/replay-app/issues"
   },
-  "homepage": "https://github.com/gavinning/replayapp#readme",
+  "homepage": "https://github.com/gavinning/replay-app#readme",
   "dependencies": {
     "chalk": "^2.4.1",
     "chokidar": "^2.0.3",
