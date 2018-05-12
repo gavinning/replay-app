@@ -25,7 +25,7 @@ module.exports = function({cmd, list}) {
     }
 
     // 添加忽略规则
-    if (cmd.ignore) {
+    if (cmd.ignore && ignore) {
         ignores.push(ignore)
     }
 
