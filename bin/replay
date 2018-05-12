@@ -3,9 +3,10 @@ const app = require('../app')
 const fs = require('fs')
 const path = require('path')
 const replay = require('commander')
+const package = path.join(__dirname, '../package.json')
 
 replay
-    .version(JSON.parse(fs.readFileSync('./package.json', 'utf8')).version)
+    .version(JSON.parse(fs.readFileSync(package, 'utf8')).version)
     .option('-r, -R', 'Recursive subfolders')
     .option('-d, --deep', 'Recursive subfolders')
     .option('-i, --ignore', 'Ignore items')
