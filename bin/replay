@@ -10,13 +10,13 @@ replay
     .option('-r, -R', 'Recursive subfolders')
     .option('-d, --deep', 'Recursive subfolders')
     .option('-i, --ignore', 'Ignore items')
+    .option('-e, --engine', 'Runtime environment support (node|python|swift...) (defaults to node)')
     .action(function(){
         let arr = Array.from(arguments)
         let cmd = arr.pop()
-        !arr.length || app({
-            cmd: cmd,
-            list: arr.map(item => path.resolve(item))
-        })
+        // 序列化参数
+        let map = parse(cmd, process.argv.slice(2))
+        arr.length ? app(map) : replay.outputHelp()
     })
     
 
@@ -25,4 +25,65 @@ replay.parse(process.argv)
 // 无参数时默认打印帮助信息
 if(process.argv.length == 2) {
     return replay.outputHelp()
+}
+
+// 格式化参数列表
+function parse(cmd, arr) {
+    let map = {}
+
+    if (arr.length === 0) {
+        return map
+    }
+
+    let options = cmd.options.map(item => {
+        return {
+            short: item.short,
+            long: item.long
+        }
+    })
+
+    let tmp = arr.slice(0)
+
+    while (tmp.length) {
+        let first = tmp.shift()
+
+        if (isArgument(first)) {
+            let key = first
+            let value = isValue(tmp[0]) ? tmp.shift() : true
+            let fullname = findFullname(key, options)
+            fullname ? map[fullname] = value : map
+        }
+
+        if (isValue(first)) {
+            map.value = first
+        }
+    }
+
+    // 合并 deep & R
+    map.deep = map.R || map.deep || false
+    // 因为deep没有值，所以可能value会被识别为deep的值
+    map.value = map.value || map.deep
+
+    return map
+}
+
+// 检查是否是参数
+function isArgument(item) {
+    return item ? item.indexOf('-') === 0 : false
+}
+
+// 检查是否是值
+function isValue(item) {
+    return !isArgument(item)
+}
+
+// 根据参数返回完整参数名
+function findFullname(arg, options) {
+    let fullname
+    options.forEach(option => {
+        if (arg === option.short || arg === option.long) {
+            fullname = option.long.replace(/-/g, '')
+        }
+    })
+    return fullname
 }

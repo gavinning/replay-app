@@ -3,30 +3,42 @@ const lab = require('linco.lab')
 const watch = require('chokidar')
 const color = require('chalk')
 const exec = require('child_process').execSync
+const argv = process.argv
 
 const ignores = [
     /^\./,
     '**/node_modules/**'
 ]
 
-module.exports = function({cmd, list}) {
-    // 监听路径
-    let url = list[0]
+module.exports = function(map) {
+    // console.log('==== start ====')
+    // console.log(map)
+    // console.log('==== end ====')
+
+    // 默认为node
+    let engine = 'node'
+
+    // 目标文件
+    let target = map.value
 
     // 忽略规则
-    let ignore = list[1]
+    let ignore = map.ignore
 
-    // 执行目标
-    let target = url
+    // 目标目录
+    let url = target
 
-    if (cmd.deep || cmd.R) {
-        // 监听路径上升
-        url = path.dirname(url)
-    }
+    // 检查执行环境
+    engine = map.engine || engine
 
     // 添加忽略规则
-    if (cmd.ignore && ignore) {
-        ignores.push(ignore)
+    !map.ignore || ignores.push(map.ignore)
+
+    // console.log(engine)
+
+    // 是否监听整个目录
+    if (map.deep) {
+        // 监听路径上升
+        url = path.dirname(target)
     }
 
     // 创建监听器
@@ -42,14 +54,16 @@ module.exports = function({cmd, list}) {
         // 打印触发事件
         console.log(timestamp(), 'change', mapSrc(src))
         // run app
-        runapp(target)
+        runapp(engine, target)
     })
+
+    console.log(`Listening ${map.deep ? url : target} and replay ${target}`)
 }
 
 // run it
-function runapp(target) {
+function runapp(engine, target) {
     try{
-        console.log(exec(`node ${target}`).toString())
+        console.log(exec(`${engine} ${target}`).toString())
     }
     catch(err){
         console.log(timestamp(), color.red(`Error: ${err.message}`))
@@ -64,4 +78,42 @@ function timestamp() {
 // 短地址
 function mapSrc(src) {
     return src.split(new RegExp(path.sep)).splice(-2, 2).join(path.sep)
+}
+
+// 查找参数值
+function findValue(arg1, arg2) {
+    let index = Math.max(argv.indexOf(arg1), arg2 ? argv.indexOf(arg2) : -1)
+    if (index > 1) {
+        return argv[index + 1]
+    }
+}
+
+// 查询目标文件
+function serialization(arr) {
+    var map = {}
+    var tmp = arr.slice(0)
+
+    while (tmp.length) {
+        let first = tmp.shift()
+
+        if (isArgument(first)) {
+            let key = first
+            let val = tmp.shift()
+            map[key] = val
+        }
+
+        if (isValue(first)) {
+            map.value = first
+        }
+    }
+
+    return map
+}
+
+function isArgument(item) {
+    return item ? item.indexOf('-') === 0 : false
+}
+
+function isValue(item) {
+    return !isArgument(item)
 }
